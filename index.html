@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Shelf — Book Tracker</title>
+  <meta name="description" content="Track your physical books, ebooks and audiobooks.">
+  <meta name="theme-color" content="#f6efe3" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#17120e" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="5" y="6" width="6" height="20" rx="1.2" fill="var(--accent)"/><rect x="12.5" y="9" width="5" height="17" rx="1.2" fill="var(--brand-2)"/><rect x="20" y="7" width="6" height="19" rx="1.2" transform="rotate(9 23 16)" fill="var(--brand-3)"/><path d="M3 27.5h26" stroke="var(--ink-2)" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <span>Shelf</span>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Views">
+      <button role="tab" id="tab-library" aria-selected="true" aria-controls="view-library" data-view="library">Library</button>
+      <button role="tab" id="tab-stats" aria-selected="false" aria-controls="view-stats" data-view="stats">Stats</button>
+    </nav>
+    <div class="top-actions">
+      <button class="icon-btn" id="themeBtn" type="button" title="Theme" aria-label="Toggle theme">
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+      </button>
+      <div class="menu-wrap">
+        <button class="icon-btn" id="menuBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-label="Data menu" title="Import / export">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+        </button>
+        <div class="menu" id="dataMenu" role="menu" hidden>
+          <button role="menuitem" data-action="export-json">Export JSON</button>
+          <button role="menuitem" data-action="export-csv">Export CSV</button>
+          <hr>
+          <button role="menuitem" data-action="import">Import JSON or CSV…</button>
+          <hr>
+          <button role="menuitem" data-action="sample">Add sample books</button>
+          <button role="menuitem" data-action="clear" class="danger">Delete all books…</button>
+        </div>
+      </div>
+      <button class="btn primary add-btn" id="addBtn" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Add book</span>
+      </button>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- LIBRARY -->
+    <section id="view-library" role="tabpanel" aria-labelledby="tab-library">
+      <div class="toolbar">
+        <label class="search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input id="search" type="search" placeholder="Search title, author, notes, location…" autocomplete="off" aria-label="Search library">
+        </label>
+        <div class="filters">
+          <div class="seg" role="group" aria-label="Status filter" id="statusFilter">
+            <button data-v="all" aria-pressed="true">All <b data-count="all"></b></button>
+            <button data-v="reading" aria-pressed="false">Reading <b data-count="reading"></b></button>
+            <button data-v="want" aria-pressed="false">Want <b data-count="want"></b></button>
+            <button data-v="finished" aria-pressed="false">Finished <b data-count="finished"></b></button>
+            <button data-v="dnf" aria-pressed="false">DNF <b data-count="dnf"></b></button>
+          </div>
+          <div class="filter-row">
+            <select id="formatFilter" aria-label="Format filter">
+              <option value="all">All formats</option>
+              <option value="physical">Physical</option>
+              <option value="ebook">Ebook</option>
+              <option value="audio">Audiobook</option>
+            </select>
+            <select id="extraFilter" aria-label="More filters">
+              <option value="all">Any</option>
+              <option value="lent">Lent out</option>
+              <option value="rated">Rated 4+</option>
+              <option value="unrated">Unrated</option>
+              <option value="thisyear">Finished this year</option>
+            </select>
+            <select id="sortBy" aria-label="Sort by">
+              <option value="updated">Recently updated</option>
+              <option value="added">Date added</option>
+              <option value="title">Title A–Z</option>
+              <option value="author">Author A–Z</option>
+              <option value="finished">Date finished</option>
+              <option value="rating">Rating</option>
+              <option value="progress">Progress</option>
+            </select>
+            <button class="icon-btn" id="sortDir" type="button" aria-label="Reverse sort order" title="Reverse order">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16m0 0-3-3m3 3 3-3M17 20V4m0 0-3 3m3-3 3 3"/></svg>
+            </button>
+            <div class="seg small" role="group" aria-label="Layout" id="layoutToggle">
+              <button data-v="grid" aria-pressed="true" title="Shelf view" aria-label="Shelf layout"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="1"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1"/></svg></button>
+              <button data-v="list" aria-pressed="false" title="List" aria-label="List layout"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="result-meta" id="resultMeta" aria-live="polite"></p>
+      <div id="bookList" class="books grid"></div>
+      <div id="emptyState" class="empty" hidden>
+        <svg class="empty-art" viewBox="0 0 240 170" aria-hidden="true">
+          <ellipse cx="120" cy="156" rx="104" ry="8" class="ea-shadow"/>
+          <rect x="18" y="128" width="204" height="12" rx="3" class="ea-plank"/>
+          <rect x="18" y="138" width="204" height="5" rx="2" class="ea-plank-edge"/>
+          <rect x="40" y="62" width="22" height="66" rx="3" class="ea-b1"/><path d="M44 74h14M44 116h14" class="ea-line"/>
+          <rect x="64" y="50" width="18" height="78" rx="3" class="ea-b2"/><path d="M68 62h10M68 116h10" class="ea-line"/>
+          <rect x="84" y="70" width="26" height="58" rx="3" class="ea-b3"/><path d="M89 82h16M89 116h16" class="ea-line"/>
+          <rect x="126" y="56" width="20" height="72" rx="3" class="ea-b4" transform="rotate(-16 126 128)"/>
+          <g class="ea-plant"><path d="M186 128v-22" class="ea-stem"/><path d="M186 112c-10-2-16-10-16-18 9 1 16 8 16 18zM186 106c8-3 14-11 13-19-8 2-13 9-13 19z" class="ea-leaf"/><path d="M174 106h24l-3 22h-18z" class="ea-pot"/></g>
+          <g class="ea-spark"><path d="M160 36v10M155 41h10"/><path d="M58 26v8M54 30h8"/><circle cx="196" cy="58" r="2"/></g>
+        </svg>
+        <h2 id="emptyTitle">Your shelf is empty</h2>
+        <p id="emptyText">Add your first book, or load a few samples to look around.</p>
+        <div class="empty-actions">
+          <button class="btn primary" data-action="add">Add a book</button>
+          <button class="btn" data-action="sample">Load samples</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <section id="view-stats" role="tabpanel" aria-labelledby="tab-stats" hidden>
+      <div class="stats-head">
+        <div><p class="eyebrow">Your year in books</p><h1>Reading stats</h1></div>
+        <label class="year-pick">Year
+          <select id="statsYear" aria-label="Stats year"></select>
+        </label>
+      </div>
+
+      <div class="goal card" id="goalCard"></div>
+
+      <div class="tiles" id="tiles"></div>
+
+      <div class="chart-grid">
+        <figure class="card chart" id="yearChartCard">
+          <figcaption>
+            <h2>Books finished per year</h2>
+            <button class="link-btn" data-toggle-table="yearTable" type="button">Show table</button>
+          </figcaption>
+          <div class="chart-body" id="yearChart"></div>
+          <div class="chart-table" id="yearTable" hidden></div>
+        </figure>
+
+        <figure class="card chart">
+          <figcaption>
+            <h2>By format <span class="muted" id="formatScope"></span></h2>
+          </figcaption>
+          <div id="formatChart" class="hbars"></div>
+          <p class="fine">A book in two formats counts once in each.</p>
+        </figure>
+
+        <figure class="card chart">
+          <figcaption>
+            <h2>Months <span class="muted" id="monthScope"></span></h2>
+            <button class="link-btn" data-toggle-table="monthTable" type="button">Show table</button>
+          </figcaption>
+          <div class="chart-body" id="monthChart"></div>
+          <div class="chart-table" id="monthTable" hidden></div>
+        </figure>
+
+        <figure class="card chart">
+          <figcaption><h2>Library status</h2></figcaption>
+          <div id="statusChart" class="hbars"></div>
+          <div id="ratingDist" class="rating-dist"></div>
+        </figure>
+      </div>
+    </section>
+  </main>
+
+  <!-- BOOK DIALOG -->
+  <dialog id="bookDialog" aria-labelledby="dlgTitle">
+    <form id="bookForm" method="dialog" novalidate>
+      <header class="dlg-head">
+        <h2 id="dlgTitle">Add book</h2>
+        <button type="button" class="icon-btn" data-close aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      </header>
+
+      <div class="dlg-body">
+        <section class="lookup" aria-label="Look up book">
+          <div class="lookup-row">
+            <input id="lookupQ" type="search" placeholder="Look up by ISBN or title (Open Library)" autocomplete="off" aria-label="Lookup query">
+            <button type="button" class="btn" id="lookupBtn">Search</button>
+          </div>
+          <p class="lookup-status" id="lookupStatus" aria-live="polite"></p>
+          <ul class="lookup-results" id="lookupResults"></ul>
+        </section>
+
+        <div class="form-top">
+          <div class="cover-edit">
+            <div class="cover" id="coverPreview"></div>
+          </div>
+          <div class="fields">
+            <label class="f"><span>Title <span class="req" aria-hidden="true">*</span></span>
+              <input name="title" required autocomplete="off">
+            </label>
+            <label class="f">Author
+              <input name="author" autocomplete="off">
+            </label>
+            <fieldset class="f">
+              <legend>Format(s)</legend>
+              <div class="chips">
+                <label class="chip-check fmt-physical"><input type="checkbox" name="formats" value="physical"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M11 4h7.5A1.5 1.5 0 0 1 20 5.5v13a1.5 1.5 0 0 1-1.5 1.5H11"/><path d="M14 8h3"/></svg>Physical</span></label>
+                <label class="chip-check fmt-ebook"><input type="checkbox" name="formats" value="ebook"><span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="3" width="13" height="18" rx="2"/><path d="M9 7h6M9 10.5h6M9 14h3.5"/><path d="M11 18h2"/></svg>Ebook</span></label>
+                <label class="chip-check fmt-audio"><input type="checkbox" name="formats" value="audio"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3.5" y="14" width="4" height="6" rx="1.5"/><rect x="16.5" y="14" width="4" height="6" rx="1.5"/></svg>Audiobook</span></label>
+              </div>
+            </fieldset>
+          </div>
+        </div>
+
+        <div class="row2">
+          <label class="f">Status
+            <select name="status">
+              <option value="want">Want to read</option>
+              <option value="reading">Reading</option>
+              <option value="finished">Finished</option>
+              <option value="dnf">Did not finish</option>
+            </select>
+          </label>
+          <fieldset class="f">
+            <legend>Rating</legend>
+            <div class="star-input" id="starInput" role="radiogroup" aria-label="Rating"></div>
+            <input type="hidden" name="rating">
+          </fieldset>
+        </div>
+
+        <fieldset class="f group" id="pagesGroup">
+          <legend>Pages <span class="muted">(physical / ebook)</span></legend>
+          <div class="row2">
+            <label class="f">Read<input name="pagesRead" type="number" min="0" inputmode="numeric"></label>
+            <label class="f">Total<input name="totalPages" type="number" min="0" inputmode="numeric"></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="f group" id="audioGroup">
+          <legend>Listening <span class="muted">(h:mm)</span></legend>
+          <div class="row2">
+            <label class="f">Listened<input name="audioDone" placeholder="0:00" inputmode="numeric" pattern="\d+(:\d{1,2})?"></label>
+            <label class="f">Length<input name="audioTotal" placeholder="10:30" inputmode="numeric" pattern="\d+(:\d{1,2})?"></label>
+          </div>
+        </fieldset>
+
+        <div class="row3">
+          <label class="f">Added<input name="dateAdded" type="date"></label>
+          <label class="f">Started<input name="dateStarted" type="date"></label>
+          <label class="f">Finished<input name="dateFinished" type="date"></label>
+        </div>
+
+        <fieldset class="f group" id="physicalGroup">
+          <legend>Physical copy</legend>
+          <label class="f">Location<input name="location" placeholder="e.g. Living room, shelf 2" autocomplete="off" list="locationList"></label>
+          <datalist id="locationList"></datalist>
+          <div class="row2">
+            <label class="f">Lent to<input name="lentTo" placeholder="Nobody" autocomplete="off"></label>
+            <label class="f">Lent on<input name="lentDate" type="date"></label>
+          </div>
+        </fieldset>
+
+        <label class="f">Notes<textarea name="notes" rows="3" placeholder="Thoughts, quotes, who recommended it…"></textarea></label>
+
+        <details class="more">
+          <summary>More details</summary>
+          <div class="row2">
+            <label class="f">ISBN<input name="isbn" inputmode="numeric" autocomplete="off"></label>
+            <label class="f">Published<input name="published" inputmode="numeric" placeholder="Year" autocomplete="off"></label>
+          </div>
+          <label class="f">Cover image URL<input name="coverUrl" type="url" placeholder="https://…" autocomplete="off"></label>
+        </details>
+        <p class="form-error" id="formError" role="alert"></p>
+      </div>
+
+      <footer class="dlg-foot">
+        <button type="button" class="btn danger ghost" id="deleteBtn">Delete</button>
+        <span class="spacer"></span>
+        <button type="button" class="btn" data-close>Cancel</button>
+        <button type="submit" class="btn primary">Save</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- CONFIRM / GOAL DIALOG -->
+  <dialog id="smallDialog" class="small" aria-labelledby="smallTitle">
+    <form method="dialog" id="smallForm">
+      <h2 id="smallTitle"></h2>
+      <div id="smallBody"></div>
+      <footer class="dlg-foot">
+        <span class="spacer"></span>
+        <button value="cancel" class="btn" formnovalidate>Cancel</button>
+        <button value="ok" class="btn primary" id="smallOk">OK</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <input type="file" id="importFile" accept=".json,.csv,application/json,text/csv" hidden>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="tooltip" id="tooltip" role="tooltip" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
